@@ -52,7 +52,8 @@ Sensor::Sensor(struct sensor_t const& hwSensor, const uuid_t& uuid, int halVersi
     mMinDelay = hwSensor.minDelay;
     mFlags = 0;
     mUuid = uuid;
-
+    int mmHalVersion = 0;
+	
     // Set fifo event count zero for older devices which do not support batching. Fused
     // sensors also have their fifo counts set to zero.
     if (halVersion > SENSORS_DEVICE_API_VERSION_1_0) {
@@ -146,6 +147,8 @@ Sensor::Sensor(struct sensor_t const& hwSensor, const uuid_t& uuid, int halVersi
     case SENSOR_TYPE_PROXIMITY:
         mStringType = SENSOR_STRING_TYPE_PROXIMITY;
         mFlags |= SENSOR_FLAG_ON_CHANGE_MODE;
+        mmHalVersion = halVersion;
+        halVersion = SENSORS_DEVICE_API_VERSION_1_1;
         if (halVersion < SENSORS_DEVICE_API_VERSION_1_3) {
             mFlags |= SENSOR_FLAG_WAKE_UP;
         }
@@ -324,6 +327,11 @@ Sensor::Sensor(struct sensor_t const& hwSensor, const uuid_t& uuid, int halVersi
                     String16(mRequiredPermission));
         }
     }
+    
+    if (mmHalVersion > 0){
+		halVersion = mmHalVersion;
+		mmHalVersion = 0;
+		}
 }
 
 Sensor::~Sensor() {
@@ -562,8 +570,7 @@ void Sensor::flattenString8(void*& buffer, size_t& size,
     uint32_t len = static_cast<uint32_t>(string8.length());
     FlattenableUtils::write(buffer, size, len);
     memcpy(static_cast<char*>(buffer), string8.string(), len);
-    FlattenableUtils::advance(buffer, size, len);
-    size -= FlattenableUtils::align<4>(buffer);
+    FlattenableUtils::advance(buffer, size, FlattenableUtils::align<4>(len));
 }
 
 bool Sensor::unflattenString8(void const*& buffer, size_t& size, String8& outputString8) {

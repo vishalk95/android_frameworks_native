@@ -38,6 +38,7 @@ cc_library_shared {
         "-Wno-padded",
         "-Wno-switch-enum",
         "-Wno-undef",
+        "-fexceptions",
 
         //"-DLOG_NDEBUG=0",
     ],
