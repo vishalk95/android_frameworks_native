@@ -234,6 +234,7 @@ cc_binary {
     shared_libs: [
         "libsurfaceflinger",
         "libSurfaceFlingerProp",
+	"libmtk_symbols",
     ],
 }
 
@@ -273,3 +274,4 @@ cc_library_shared {
         "SurfaceFlingerProperties",
     ],
 }
+
